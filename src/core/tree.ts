@@ -74,6 +74,8 @@ export interface TreeOptions {
   e3Ppm?: number[];
   e4Ppm?: number;
   e1?: Partial<E1SourceConfig>;
+  /** Record, frame by frame, whether the S bit of one E2 tributary was stuffing (1) or data (0). */
+  record?: { mux: number; trib: number };
 }
 
 export interface LevelStats {
@@ -89,6 +91,8 @@ export interface PdhTree {
   e2: JustMux[];
   e3: JustMux[];
   stats: { E2: LevelStats; E3: LevelStats; E4: LevelStats };
+  /** The recorded stuffing pattern (see TreeOptions.record). */
+  pattern: number[];
   nextTopFrame(): MuxFrame;
 }
 
@@ -105,8 +109,10 @@ export function buildTree(opts: TreeOptions): PdhTree {
     E3: { frames: 0, stuffed: [] as number[][] },
     E4: { frames: 0, stuffed: [] as number[][] },
   };
+  const pattern: number[] = [];
   const track = (lvl: LevelStats, m: number) => (f: MuxFrame) => {
     if (m === 0) lvl.frames++;
+    if (opts.record && lvl === stats.E2 && m === opts.record.mux) pattern.push(f.stuffed[opts.record.trib] ? 1 : 0);
     const row = (lvl.stuffed[m] ??= Array(4).fill(0));
     f.stuffed.forEach((s, t) => {
       if (s) row[t]!++;
@@ -133,6 +139,7 @@ export function buildTree(opts: TreeOptions): PdhTree {
       e2,
       e3: [],
       stats,
+      pattern,
       nextTopFrame: () => {
         const f = e2[0]!.nextFrame();
         trackTop(f);
@@ -161,6 +168,7 @@ export function buildTree(opts: TreeOptions): PdhTree {
       e2,
       e3,
       stats,
+      pattern,
       nextTopFrame: () => {
         const f = e3[0]!.nextFrame();
         trackTop(f);
@@ -181,6 +189,7 @@ export function buildTree(opts: TreeOptions): PdhTree {
     e2,
     e3,
     stats,
+    pattern,
     nextTopFrame: () => {
       const f = e4.nextFrame();
       trackE4(f);
