@@ -8,6 +8,8 @@ On top of that it adds three things a block-diagram animation does not give you:
 
 > Companion to [radio-link-planner](https://github.com/franco0209/radio-link-planner): the planner tells you whether a radio hop works, this tells you what that hop does to the E1 it carries.
 
+📡 **Try it now: https://franco0209.github.io/pdh-studio/**
+
 <p align="center">
   <img src="docs/img/bitmap.png" alt="Bit map of an E4 frame: 2928 bits coloured by type, with an inspector" width="900"><br>
   <sub><b>One E4 frame, one square per bit.</b> Overhead (FAS, Cj, S) in colour, payload in teal. Hover a bit and the inspector says which E1, time slot and bit of that E1 it is.</sub>
